@@ -2,14 +2,15 @@ const  User = require('../model/user');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const apiResponse=require('../helper/apiResponse')
 
 async function handleGetAllUsers(req, res) {
   try {
     const allDbUsers = await User.find({});
-    res.json({result:true, data:allDbUsers});
+    return apiResponse.successResponseWithData(res,"User list retrived successfully",allDbUsers)
   } catch (error) {
     console.log(error);
-    res.status(500).json({ result:false, error: 'An error occurred while fetching users' });
+    return apiResponse.ErrorResponse(res,"Error occured during api call")
   }
 }
 
@@ -19,21 +20,21 @@ async function handleCreateUser(req, res) {
       const { firstName, lastName, mobile, email, password, roleId, role } = req.body;
       // Validate required fields
       if (!firstName || !lastName || !mobile || !email || !password || !roleId) {
-        return res.status(400).json({result:false, error: "Please provide all required fields" });
+        return apiResponse.ErrorResponse(res,"All Fields are required");
       }
       // Validate email format
       if (!validator.isEmail(email)) {
-        return res.status(400).json({ result:false, error: "Please provide a valid email" });
+        return apiResponse.ErrorResponse(res,"Valid email is required");
       }
       // Validate mobile number format (example for 10-digit number)
       if (!/^\d{10}$/.test(mobile)) {
-        return res.status(400).json({result:false,  error: "Enter a valid 10-digit mobile number" });
+        return apiResponse.ErrorResponse(res,"Enter valid mobile number");
       }
   
       // Check if the user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({result:false, error: "User already registered" });
+        return apiResponse.ErrorResponse(res,"User already exists");
       }
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -52,7 +53,7 @@ async function handleCreateUser(req, res) {
       const savedUser = await newUser.save();
   
       // Respond with the created user (excluding password)
-      res.status(201).json({result:true,
+      return res.status(201).json({result:true,
         data: {
           id: savedUser._id,
           firstName: savedUser.firstName,
@@ -66,7 +67,9 @@ async function handleCreateUser(req, res) {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({result:false, error: 'An error occurred while creating user' });
+      return apiResponse.ErrorResponse(res,'Error occured during api call');
+      
+      
     }
   }
 
