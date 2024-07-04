@@ -5,9 +5,11 @@ const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
 const { connectMongoDb } = require('./connection');
+const swaggerSetup = require('./docs/swagger');
 
 // Connect to MongoDB
 connectMongoDb();
+swaggerSetup(app);
 
 // Middleware
 app.use(cors());

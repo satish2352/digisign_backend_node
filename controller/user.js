@@ -6,7 +6,6 @@ const apiResponse=require('../helper/apiResponse')
 const { setUser } = require('../service/auth');
 require("dotenv").config();
 const DEFAULT_PAGE_SIZE = process.env.DEFAULT_PAGE_SIZE;
-
   async function handleGetAllUsers(req, res) {
     try {
       // Extract page and pageSize from request query parameters, with default values
