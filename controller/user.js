@@ -4,48 +4,66 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const apiResponse=require('../helper/apiResponse')
 const { setUser } = require('../service/auth');
+require("dotenv").config();
+const DEFAULT_PAGE_SIZE = process.env.DEFAULT_PAGE_SIZE;
 
-
-async function handleGetAllUsers(req, res) {
-  try {
-    const allDbUsers = await User.find({});
-    return apiResponse.successResponseWithData(res,"User list retrived successfully",allDbUsers)
-  } catch (error) {
-    console.log(error);
-    return apiResponse.ErrorResponse(res,"Error occured during api call")
-  }
+  async function handleGetAllUsers(req, res) {
+    try {
+      // Extract page and pageSize from request query parameters, with default values
+      const page = parseInt(req.body.page) || 1;
+      const pageSize = parseInt(req.body.pageSize) || DEFAULT_PAGE_SIZE;
+  
+      // Calculate the number of documents to skip
+      const skip = (page - 1) * pageSize;
+  
+      // Query the database with pagination and filters
+      const allDbUsers = await User.find({ is_active: 1, is_deleted: 0 })
+                                   .skip(skip)
+                                   .limit(pageSize);
+  
+      // Get total number of documents that match the filters
+      const totalUsers = await User.countDocuments({ is_active: 1, is_deleted: 0 });
+  
+      // Calculate total number of pages
+      const totalPages = Math.ceil(totalUsers / pageSize);
+  
+      // Construct the response data
+      const responseData = {
+        data: allDbUsers,
+        page:page,
+        pageSize:pageSize,
+        totalItems:totalUsers,
+        totalPages:totalPages
+      };
+      if (page > totalPages) {
+        return apiResponse.ErrorBadRequestResponseWithData(res, "Requested page exceeds total number of pages",responseData);
+      }
+  
+      return apiResponse.successResponseWithData(res, "User list retrieved successfully", responseData);
+    } catch (error) {
+      console.log(error);
+      return apiResponse.ErrorResponse(res, "Error occurred during API call");
+    }
 }
 
 async function handleLoginUser(req, res) {
   const { email, password } = req.body;
-
   try {
-    if (!email || !password) {
-      return apiResponse.ErrorResponse(res, 'Email and password are required');
-    }
-
     // Check if the user exists in the database
     const user = await User.findOne({ email });
     if (!user) {
       return apiResponse.ErrorResponse(res, 'User not found');
     }
-
-    console.log(`User Password (Hashed): ${user.password}`);
-    console.log(`Provided Password: ${password}`);
-
     // Compare the password
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log(`Password Match: ${isMatch}`);
     if (!isMatch) {
       return apiResponse.ErrorResponse(res, 'Invalid credentials');
     }
-
     // Generate a JWT token using the authService
     const token = await setUser(user);
     if (!token) {
       return apiResponse.ErrorResponse(res, 'Error generating token');
     }
-
     // Return success response with the token
     return apiResponse.successResponseWithData(res, 'Login successful', { token });
   } catch (error) {
@@ -63,39 +81,25 @@ async function handleCreateUser(req, res) {
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return apiResponse.ErrorResponse(res, "User already exists");
+      return apiResponse.ErrorResponse(res, "User already exists with provided email id");
     }
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
   
     // Create new user
     const newUser = new User({
-      firstName,
-      lastName,
-      mobile,
-      email,
+      firstName:firstName,
+      lastName:lastName,
+      mobile:mobile,
+      email:email,
       password: hashedPassword,
-      roleId,
-      role
+      roleId:roleId,
+      role:role
     });
-
     // Save user to the database
     const savedUser = await newUser.save();
-
-    // Respond with the created user (excluding password)
-    return res.status(201).json({
-      result: true,
-      data: {
-        id: savedUser._id,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        mobile: savedUser.mobile,
-        email: savedUser.email,
-        roleId: savedUser.roleId,
-        role: savedUser.role,
-        createdAt: savedUser.createdAt
-      }
-    });
+    return apiResponse.successResponse(res,'User created successfully');
+    
   } catch (error) {
     console.error(error);
     return apiResponse.ErrorResponse(res, 'Error occurred during API call');

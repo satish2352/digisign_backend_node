@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../middleware/authMiddleware');
+const {verifyToken} = require('../service/auth');
 
 const {
     createUserValidationRules,
@@ -11,5 +11,5 @@ const { handleGetAllUsers,handleCreateUser,handleLoginUser } = require('../contr
 
 router.post('/create',createUserValidationRules(),validate,handleCreateUser);
 router.post('/login',loginUserValidationRules(),validate,handleLoginUser);
-router.get('/',verifyToken,handleGetAllUsers);
+router.post('/',verifyToken,handleGetAllUsers);
 module.exports = router;

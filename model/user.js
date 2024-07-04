@@ -48,6 +48,14 @@ const userSchema = new mongoose.Schema({
     enum: ["admin", "user", "screener", "doctor", "sevika", "pharmacy"],
     default: "user"
   },
+  is_active: {
+    type: Number,
+    default:1,
+  },
+  is_deleted: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now

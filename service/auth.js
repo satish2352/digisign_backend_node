@@ -1,39 +1,44 @@
-const jwt=require('jsonwebtoken')
-require('dotenv').config();
-const JWT_SECRET_KEY=process.env.JWT_SECRET_KEY;
-const JWT_EXPIRES=process.env.JWT_EXPIRES;
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const apiResponse = require('../helper/apiResponse');
 
-async function setUser(user){
-    try {
-        console.log(user)
-        console.log(JWT_SECRET_KEY)
-        const payload={_id:user._id,email:user.email};
-        return jwt.sign(payload, JWT_SECRET_KEY);
-    } catch (error) {
-        console.log(error)
-        return null;
-    }
-}
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const JWT_EXPIRES = process.env.JWT_EXPIRES;
 
-async function verifyUser(token){
+async function setUser(user) {
   try {
-      if(!token)
-          {
-              return null;
-          }
-      return jwt.verify(token,JWT_SECRET_KEY);
+    // Options object
+    const options = {};
+    // If JWT_EXPIRES is defined, add expiresIn to options
+    if (JWT_EXPIRES) {
+      options.expiresIn = JWT_EXPIRES;
+    }
+    const payload = { _id: user._id, email: user.email };
+    return jwt.sign(payload, JWT_SECRET_KEY, options);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return null;
   }
 }
 
-module.exports={
-    setUser,verifyUser
+function verifyToken(req, res, next) {
+    let token = req.headers['authorization'];
+     token = token.split(' ')[1];
+
+    if (!token) {
+        return apiResponse.unauthorizedResponse(res, 'Access denied. No token provided.');
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET_KEY);
+        req.user = decoded;  // Attach user info to request object
+        next();
+    } catch (error) {
+        console.log(error);
+        return apiResponse.unauthorizedResponse(res, 'Invalid or expired token.');
+    }
 }
 
-
-
-
-
-
+module.exports = {
+  setUser,
+  verifyToken,
+};

@@ -30,7 +30,14 @@ exports.ErrorResponseWithData = function (res, msg,data) {
 	};
 	return res.status(500).json(resData);
 };
-
+exports.ErrorBadRequestResponseWithData = function (res, msg,data) {
+	var resData = {
+		result: false,
+		message: msg,
+		data: data
+	};
+	return res.status(400).json(resData);
+};
 exports.notFoundResponse = function (res, msg) {
 	var data = {
 		result: false,
