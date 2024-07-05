@@ -5,19 +5,29 @@
  *     User:
  *       type: object
  *       properties:
- *         username:
+ *         firstName:
+ *           type: string
+ *         lastName:
  *           type: string
  *         email:
  *           type: string
  *         role:
  *           type: string
+ *         roleId:
+ *           type: number
+ *         mobile:
+ *           type: string
+ *         is_deleted:
+ *           type: number
  *         isActive:
  *           type: boolean
+ *         password:
+ *           type: string
  *       example:
- *         username: john_doe
+ *         firstName: John
  *         email: john.doe@example.com
  *         role: user
- *         isActive: true
+ *         isActive: 1
  */
 
 /**
@@ -140,7 +150,7 @@ const {
   } = require('../middleware/validators');
 const { handleGetAllUsers,handleCreateUser,handleLoginUser } = require('../controller/user');
 
-router.post('/create',createUserValidationRules(),validate,handleCreateUser);
+router.post('/create',verifyToken,createUserValidationRules(),validate,handleCreateUser);
 router.post('/login',loginUserValidationRules(),validate,handleLoginUser);
 router.post('/',verifyToken,handleGetAllUsers);
 module.exports = router;

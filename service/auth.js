@@ -23,8 +23,11 @@ async function setUser(user) {
 
 function verifyToken(req, res, next) {
     let token = req.headers['authorization'];
+    if(!token)
+    {
+      return apiResponse.unauthorizedResponse(res, 'Access denied. No token provided.');
+    }
      token = token.split(' ')[1];
-
     if (!token) {
         return apiResponse.unauthorizedResponse(res, 'Access denied. No token provided.');
     }

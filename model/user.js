@@ -50,11 +50,11 @@ const userSchema = new mongoose.Schema({
   },
   is_active: {
     type: Number,
-    default:1,
+    default:true,
   },
   is_deleted: {
     type: Number,
-    default: 0,
+    default: false,
   },
   createdAt: {
     type: Date,

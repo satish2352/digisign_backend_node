@@ -6,10 +6,19 @@ const app = express();
 const bodyParser = require('body-parser');
 const { connectMongoDb } = require('./connection');
 const swaggerSetup = require('./docs/swagger');
+const initializeUserRoles = require('./init/initializeUserRoles');
 
 // Connect to MongoDB
 connectMongoDb();
 swaggerSetup(app);
+initializeUserRoles()
+  .then(() => {
+    console.log('UserRoles collection initialization check complete.');
+  })
+  .catch((err) => {
+    console.error('Error initializing UserRoles collection:', err);
+    process.exit(1);
+  });
 
 // Middleware
 app.use(cors());

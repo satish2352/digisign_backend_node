@@ -1,5 +1,6 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const path = require('path'); // Import the path module
 
 const options = {
   swaggerDefinition: {
@@ -17,6 +18,10 @@ const options = {
     ],
   },
   apis: ['./routes/*.js'], // Path to your API routes
+  //apis: [path.join(__dirname, '*.js'), path.join(__dirname, '**/*.js')], // Include all JS files in the docs directory and subdirectories
+
+  //apis: [path.join(__dirname, './docs/**/*.js')], // Include all JS files in the docs directory and subdirectories
+
 };
 
 const specs = swaggerJsdoc(options);

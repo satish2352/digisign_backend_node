@@ -17,6 +17,7 @@ const DEFAULT_PAGE_SIZE = process.env.DEFAULT_PAGE_SIZE;
   
       // Query the database with pagination and filters
       const allDbUsers = await User.find({ is_active: 1, is_deleted: 0 })
+                                   .select('-password -__v')
                                    .skip(skip)
                                    .limit(pageSize);
   
