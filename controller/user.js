@@ -6,8 +6,6 @@ const jwt = require('jsonwebtoken');
 const apiResponse=require('../helper/apiResponse')
 const { setUser } = require('../service/auth');
 require("dotenv").config();
-const UAParser = require('ua-parser');
-
 const DEFAULT_PAGE_SIZE = process.env.DEFAULT_PAGE_SIZE;
 const ALLOW_MULTIPLE_LOGINS = process.env.ALLOW_MULTIPLE_LOGINS;
   async function handleGetAllUsers(req, res) {
@@ -136,12 +134,52 @@ try {
     return apiResponse.successResponse(res, "Password has been changed successfully");
   } catch (err) {
     console.error(err);
-    return apiResponse.errorResponse(res, "An error occurred while changing the password");
+    return apiResponse.ErrorResponse(res, "An error occurred while changing the password");
   }  
 }
+
+async function handleLogout(req,res)
+{
+try {
+    
+  await Tokens.findOneAndDelete(
+    { userId: req.user._id },
+  );
+    return apiResponse.successResponse(res, "user logged out successfully");
+  } catch (err) {
+    console.error(err);
+    return apiResponse.ErrorResponse(res, "An error occurred while logging out the user");
+  }  
+}
+async function handleDeleteUser(req,res)
+{
+try {
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    { $set: { is_deleted:true,is_active:false } },
+    { new: true } // To return the updated document
+  );
+  if(!updatedUser){
+    return apiResponse.ErrorResponse(res, "An error occurred while updating the user");
+  }
+  const deletedToken=await Tokens.findOneAndDelete(
+    { userId: req.user._id },
+  );
+  if(!deletedToken){
+    return apiResponse.ErrorResponse(res, "An error occurred while deleting the token");
+  }
+    return apiResponse.successResponse(res, "User deleted successfully");
+  } catch (err) {
+    console.error(err);
+    return apiResponse.ErrorResponse(res, "An error occurred while updating the user");
+  }  
+}
+
 module.exports = {
   handleGetAllUsers,
   handleCreateUser,
   handleLoginUser,
   handleChangePassword,
+  handleLogout,
+  handleDeleteUser
 };

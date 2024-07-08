@@ -141,18 +141,20 @@
  */
 const express = require('express');
 const router = express.Router();
-const {verifyToken,checkUserExists} = require('../service/auth');
+const {verifyToken,checkUserExists,checkUserExistsWithotToken} = require('../service/auth');
 
 const {
     createUserValidationRules,
     loginUserValidationRules,
     validate,
-    changePasswordValidationRules
+    changePasswordValidationRules,
   } = require('../middleware/validators');
-const { handleGetAllUsers,handleCreateUser,handleLoginUser,handleChangePassword } = require('../controller/user');
+const { handleGetAllUsers,handleCreateUser,handleLoginUser,handleChangePassword,handleLogout,handleDeleteUser } = require('../controller/user');
 
 router.post('/create',verifyToken,createUserValidationRules(),validate,handleCreateUser);
-router.post('/login',loginUserValidationRules(),validate,handleLoginUser);
+router.post('/login',loginUserValidationRules(),validate,checkUserExistsWithotToken,handleLoginUser);
 router.post('/',verifyToken,handleGetAllUsers);
 router.post('/chnagePassword',verifyToken,changePasswordValidationRules(),validate,checkUserExists,handleChangePassword);
+router.post('/logout',verifyToken,handleLogout);
+router.post('/deleteUser',verifyToken,checkUserExists,handleDeleteUser);
 module.exports = router;

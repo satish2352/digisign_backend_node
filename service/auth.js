@@ -66,13 +66,35 @@ async function checkUserExists(req,res,next)
           req.user=userExists;
           next();
         }else{
-          return apiResponse.unauthorizedResponse(res, 'user not found');
+          return apiResponse.unauthorizedResponse(res, 'User not found');
         }                              
     } catch (error) {
         console.log(error);
         return apiResponse.unauthorizedResponse(res, 'Invalid or expired token.');
     }
 }
+async function checkUserExistsWithotToken(req,res,next)
+{
+    try {
+        const userExists = await User.findOne({ email:req.body.email});
+        if(userExists){
+          if(userExists.is_active==false || userExists.is_deleted==true)
+          {
+            return apiResponse.unauthorizedResponse(res, 'User is not active or deleted');
+          }            
+          req.user=userExists;
+          next();
+        }else{
+          return apiResponse.unauthorizedResponse(res, 'User not found');
+        }                              
+    } catch (error) {
+        console.log(error);
+        return apiResponse.unauthorizedResponse(res, 'Error occured which checking user.');
+    }
+}
+
+
+
 
 
 
@@ -80,4 +102,5 @@ module.exports = {
   setUser,
   verifyToken,
   checkUserExists,
+  checkUserExistsWithotToken,
 };
