@@ -79,8 +79,26 @@ async function handleLoginUser(req, res) {
         { token },
         { upsert: true, new: true }
       );
-    } // Return success response with the token
-    return apiResponse.successResponseWithData(res, 'Login successful', { token });
+    }
+
+ // Remove sensitive fields from user object
+ const userWithoutSensitiveInfo = {
+  _id: user._id,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  mobile: user.mobile,
+  email: user.email,
+  roleId: user.roleId,
+  role: user.role,
+  is_active: user.is_active,
+  is_deleted: user.is_deleted,
+  createdAt: user.createdAt,
+  __v: user.__v
+  // Add other non-sensitive fields here as needed
+};
+
+     // Return success response with the token
+    return apiResponse.successResponseWithData(res, 'Login successful', { token ,user:userWithoutSensitiveInfo});
   } catch (error) {
     console.error(error);
     return apiResponse.ErrorResponse(res, 'Error occurred during API call');
@@ -185,8 +203,6 @@ async function handleUpdateUser(req,res)
     }else{
       updatableFields = ['firstName', 'lastName', 'mobile', 'email', 'is_active', 'is_deleted'];
     }
-   
-     
       if(req.user.email==req.body.email)
         {
         return apiResponse.ErrorBadRequestResponseWithData(res, "User different email id to update");
