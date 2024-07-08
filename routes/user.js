@@ -148,13 +148,22 @@ const {
     loginUserValidationRules,
     validate,
     changePasswordValidationRules,
+    updateUserValidationRules
   } = require('../middleware/validators');
-const { handleGetAllUsers,handleCreateUser,handleLoginUser,handleChangePassword,handleLogout,handleDeleteUser } = require('../controller/user');
+const { handleGetAllUsers,
+  handleCreateUser,
+  handleLoginUser,
+  handleChangePassword,
+  handleLogout,
+  handleDeleteUser,
+  handleUpdateUser,
+ } = require('../controller/user');
 
 router.post('/create',verifyToken,createUserValidationRules(),validate,handleCreateUser);
 router.post('/login',loginUserValidationRules(),validate,checkUserExistsWithotToken,handleLoginUser);
 router.post('/',verifyToken,handleGetAllUsers);
 router.post('/chnagePassword',verifyToken,changePasswordValidationRules(),validate,checkUserExists,handleChangePassword);
-router.post('/logout',verifyToken,handleLogout);
+router.post('/logout',verifyToken,checkUserExists,handleLogout);
 router.post('/deleteUser',verifyToken,checkUserExists,handleDeleteUser);
+router.post('/updateUser',verifyToken,checkUserExists,updateUserValidationRules(),validate,handleUpdateUser);
 module.exports = router;

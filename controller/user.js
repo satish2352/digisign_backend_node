@@ -174,6 +174,48 @@ try {
     return apiResponse.ErrorResponse(res, "An error occurred while updating the user");
   }  
 }
+async function handleUpdateUser(req,res)
+{
+  try{
+    let  updatedDocument;
+    let updatableFields;
+    if(req.user.roleId==1)
+    {
+      updatableFields = ['firstName', 'lastName', 'mobile', 'email', 'roleId', 'is_active', 'is_deleted','role'];
+    }else{
+      updatableFields = ['firstName', 'lastName', 'mobile', 'email', 'is_active', 'is_deleted'];
+    }
+   
+     
+      if(req.user.email==req.body.email)
+        {
+        return apiResponse.ErrorBadRequestResponseWithData(res, "User different email id to update");
+      }
+    const fieldsToBeUpdated = {};
+    Object.keys(req.body).forEach(key => {
+      if (updatableFields.includes(key)) {
+        fieldsToBeUpdated[key] = req.body[key];
+      }
+    });
+    if(Object.keys(fieldsToBeUpdated).length>0)
+    {
+      updatedDocument= await User.findOneAndUpdate(
+        { email: req.user.email },
+        { $set: fieldsToBeUpdated },
+        { new: true } // To return the updated document
+      );
+    }else{
+      return apiResponse.ErrorBadRequestResponseWithData(res, "No params found for updating the user");
+    }
+    if (!updatedDocument) {
+      return apiResponse.ErrorResponse(res, "Error occured while updating the user");
+    }
+    return apiResponse.successResponse(res, "User updated successfully",updatedDocument);
+  }catch(err){
+    console.log(err);
+    return apiResponse.ErrorResponse(res, "Error occured while updating the user ");
+  }
+}
 
 module.exports = {
   handleGetAllUsers,
@@ -181,5 +223,6 @@ module.exports = {
   handleLoginUser,
   handleChangePassword,
   handleLogout,
-  handleDeleteUser
+  handleDeleteUser,
+  handleUpdateUser
 };
