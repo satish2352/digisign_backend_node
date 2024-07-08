@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const UserRolesSchema = new Schema({
-    roleId: {
-      type: Number,
+const tokenSchema = new Schema({
+    token: {
+      type: String,
       required: true,
       unique: true,
     },
-    roleTitle: {
+    userId: {
       type: String,
       required: true,
     },
-    description: {
+    userAgent: {
       type: String,
+      default: '',
     },
     createdAt: {
       type: Date,
@@ -28,4 +29,4 @@ const UserRolesSchema = new Schema({
     },
    // permissions: [PermissionSchema], // Array of permissions
   });
-  module.exports = mongoose.model('UserRoles', UserRolesSchema);
+  module.exports = mongoose.model('tokens', tokenSchema);

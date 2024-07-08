@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const apiResponse = require('../helper/apiResponse');
+const User =require('../model/user')
+const Tokens =require('../model/tokens')
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const JWT_EXPIRES = process.env.JWT_EXPIRES;
@@ -21,7 +23,7 @@ async function setUser(user) {
   }
 }
 
-function verifyToken(req, res, next) {
+async function verifyToken(req, res, next) {
     let token = req.headers['authorization'];
     if(!token)
     {
@@ -32,7 +34,11 @@ function verifyToken(req, res, next) {
         return apiResponse.unauthorizedResponse(res, 'Access denied. No token provided.');
     }
     try {
-        const decoded = jwt.verify(token, JWT_SECRET_KEY);
+        const decoded = jwt.verify(token, JWT_SECRET_KEY);          // Check if token exists in the database
+       const tokenDoc = await Tokens.findOne({ token });
+    if (!tokenDoc) {
+      return apiResponse.unauthorizedResponse(res, 'Invalid or expired token.');
+    }
         req.user = decoded;  // Attach user info to request object
         next();
     } catch (error) {
@@ -41,7 +47,37 @@ function verifyToken(req, res, next) {
     }
 }
 
+async function checkUserExists(req,res,next)
+{
+  let token = req.headers['authorization'];
+    if(!token)
+    {
+      return apiResponse.unauthorizedResponse(res, 'Access denied. No token provided.');
+    }
+     token = token.split(' ')[1];
+    if (!token) {
+        return apiResponse.unauthorizedResponse(res, 'Access denied. No token provided.');
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET_KEY);
+        req.user = decoded;
+        const userExists = await User.findOne({ is_active: 1, is_deleted: 0,_id:decoded._id });
+        if(userExists){
+          req.user=userExists;
+          next();
+        }else{
+          return apiResponse.unauthorizedResponse(res, 'user not found');
+        }                              
+    } catch (error) {
+        console.log(error);
+        return apiResponse.unauthorizedResponse(res, 'Invalid or expired token.');
+    }
+}
+
+
+
 module.exports = {
   setUser,
   verifyToken,
+  checkUserExists,
 };

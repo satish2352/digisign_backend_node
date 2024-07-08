@@ -23,6 +23,25 @@ const loginUserValidationRules = () => {
     }).trim().withMessage('Password is required min 8 digit')
   ];
 };
+// Validation rules for user login
+const changePasswordValidationRules = () => {
+  return [
+    body('old_password').notEmpty().isLength({
+        min: 8,
+        max: 100,
+    }).trim().withMessage('Password is required min 8 digit'),
+    body('new_password').notEmpty().isLength({
+      min: 8,
+      max: 100,
+  }).trim().withMessage('Password is required min 8 digit'),
+  body('new_password').custom((value, { req }) => {
+    if (value === req.body.old_password) {
+      throw new Error('New password should not be the same as the old password');
+    }
+    return true;
+  }),
+  ];
+};
 
 // Middleware to handle validation results
 const validate = (req, res, next) => {
@@ -36,5 +55,6 @@ const validate = (req, res, next) => {
 module.exports = {
   createUserValidationRules,
   loginUserValidationRules,
-  validate
+  validate,
+  changePasswordValidationRules
 };
