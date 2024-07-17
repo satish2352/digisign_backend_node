@@ -4,6 +4,8 @@ require('dotenv').config();
 const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
+app.use(bodyParser.text({ type: 'application/xml' }));
+
 const { connectMongoDb } = require('./connection');
 const swaggerSetup = require('./docs/swagger');
 const initializeUserRoles = require('./init/initializeUserRoles');
@@ -28,7 +30,11 @@ app.use(express.json());
 
 // Routes
 const userRouter = require('./routes/user');
+const apiForDigisign = require('./routes/apidigisignnew');
+
+
 app.use('/api/user', userRouter);
+app.use('/api/digisign', apiForDigisign);
 
 // Start server
 app.listen(8001, () => {
