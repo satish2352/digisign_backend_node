@@ -10,7 +10,7 @@ const { create } = require("xmlbuilder2");
 var request = require("request");
 
 //Version 3.0
-async function handleUpdateMultileDocument30(req, res) {
+async function handleUpdateMultipleDocument30(req, res) {
   const { documentId, info, documentURL, digest, consent } = req.body;
   console.log(req.body);
   const postData = {
@@ -43,5 +43,5 @@ async function handleUpdateMultileDocument30(req, res) {
 }
 
 module.exports = {
-  handleUpdateMultileDocument30,
+    handleUpdateMultipleDocument30,
 };

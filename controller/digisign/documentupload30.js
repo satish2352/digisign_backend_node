@@ -10,7 +10,7 @@ const { create } = require("xmlbuilder2");
 var request = require("request");
 
 //Version 3.0
-async function getDocumentUploadeForSign(req, res) {
+async function handleDocumentUpload30(req, res) {
   const {
     AuthMode,
     aspId,
@@ -36,7 +36,6 @@ async function getDocumentUploadeForSign(req, res) {
     x509SubjectName,
     x509Certificate,
   } = req.body;
-  console.log(req.body);
   const xmlObj = {
     Esign: {
       "@AuthMode": AuthMode,
@@ -106,5 +105,6 @@ async function getDocumentUploadeForSign(req, res) {
 }
 
 module.exports = {
-    getDocumentUploadeForSign,
+  handleDocumentUpload30
+    // getDocumentUploadeForSign
 };
