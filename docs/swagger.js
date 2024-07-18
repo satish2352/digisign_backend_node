@@ -6,7 +6,7 @@ const options = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'Javix API Documentation',
+      title: 'Digisign API Documentation',
       version: '1.0.0',
       description: 'Documentation for your REST API',
     },
